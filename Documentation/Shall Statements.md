@@ -1,4 +1,4 @@
-﻿##	Нолан, создатель ордена Золотого Льва
+﻿##	Shall Statements
 1) The system shall provide ability for managers to add, edit and delete customers.
 2) The system shall provide ability for managers to register, edit and delete charging stations.
 3) The system shall provide ability for users to place orders and pay for services.
