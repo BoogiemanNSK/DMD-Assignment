@@ -1,0 +1,7 @@
+## ER Diagram Description
+1) In order to connect CUSTOMER to the system we should find out how exactly users contact with it. Same applies to CHARGING STATION, WORKSHOP and CAR PARTS PROVIDER.
+2) CAR is exactly what customers order, when they use the system. If we don't want to lose cars, we better memorize, which cars are used by which customer. Therefore, there is a relation Uses between CAR and CUSTOMER (One customer may have many cars, but car may have only one user).
+3) When car battery is low, car should get a location of the closest free charging station with appropriate sockets, so that it could re-charge. Thus, there is a relation Closest, that will be used to find such charging station (For each car only one station can be the closest one).
+3) For cases, when car is broken, system should know what parts are there inside, in order to find appropriate workshop. For this reason there is an entity set CAR PART and relation Uses between CAR and CAR PART (Car can have many parts, and each part might be inside different cars).
+4) To send location of appropriate workshop, system should know which parts are availible in each workshop, so there is a relation Availible between CAR PART and WORKSHOP (Different parts can be in different workshops).
+5) Since each CAR PART is made by some company, it can be considered as a weak entity (no provider - no part). Therefore, CAR PART is dependable of CAR PARTS PROVIDER by relation Provides (Each Car part has its own provider and every provider may provide many parts).
