@@ -1,0 +1,65 @@
+1.
+SELECT plate
+FROM car
+WHERE plate LIKE 'AN%' AND color = 'red'
+
+
+2.
+
+
+3.
+
+
+4.
+SELECT COUNT(usage_id) = 2
+FROM customer_uses_car
+GROUP BY customer_username, start_time, cost
+
+
+5.
+SELECT AVG(distance)
+FROM customer_uses_car
+WHERE start_time = [given_date] AND type = 'order'
+
+SELECT AVG(duration)
+FROM customer_uses_car
+WHERE start_time = [given_date] AND type = 'trip'
+
+
+6.
+
+
+7.
+
+
+8.
+
+
+9.
+
+
+10.
+SELECT plate
+FROM car
+WHERE
+SELECT AVG(
+	SELECT cost
+	FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.uid = car_uses_charging_station.uid
+	WHERE car_uses_charging_station.plate = car.plate
+
+	UNION
+
+	SELECT cost
+	FROM 
+) = MAX(
+	SELECT AVG(
+		SELECT cost
+		FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.uid = car_uses_charging_station.uid
+		WHERE car_uses_charging_station.plate = car.plate
+
+		UNION
+
+		SELECT cost
+		FROM
+	)
+)
