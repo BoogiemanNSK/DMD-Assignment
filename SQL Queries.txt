@@ -14,6 +14,7 @@ WHERE plate LIKE 'AN%' AND color = 'red'
 SELECT COUNT(usage_id) = 2
 FROM customer_uses_car
 GROUP BY customer_username, start_time, cost
+WHERE customer_username = [given_name]
 
 
 5.
@@ -42,24 +43,23 @@ WHERE start_time = [given_date] AND type = 'trip'
 SELECT plate
 FROM car
 WHERE
-SELECT AVG(
+(SELECT AVG(
 	SELECT cost
 	FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.uid = car_uses_charging_station.uid
-	WHERE car_uses_charging_station.plate = car.plate
 
-	UNION
+	UNION ALL
 
-	SELECT cost
-	FROM 
-) = MAX(
+	SELECT price * count AS cost
+	FROM car_part INNER JOIN workshop_repaired_car ON car_part.name = workshop_repaired_car.pname
+)) = (SELECT MAX(
 	SELECT AVG(
 		SELECT cost
-		FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.uid = car_uses_charging_station.uid
+		FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.sid = car_uses_charging_station.sid
 		WHERE car_uses_charging_station.plate = car.plate
 
-		UNION
+		UNION ALL
 
-		SELECT cost
-		FROM
-	)
+		SELECT price * count AS cost
+		FROM car_part INNER JOIN workshop_repaired_car ON car_part.name = workshop_repaired_car.pname
+	))
 )
