@@ -197,7 +197,12 @@ def get_cars():
     return cursor.fetchall()
 
 def get_parts():
-    sql = "SELECT name FROM car_part;"
+    sql = "SELECT * FROM car_part;"
+    cursor.execute(sql)
+    return cursor.fetchall()
+
+def get_parts_of_car(plate):
+    sql = "SELECT * FROM car_part_used_in_car WHERE plate='{}';".format(plate)
     cursor.execute(sql)
     return cursor.fetchall()
 
@@ -237,6 +242,10 @@ def add_car_part_available_in_workshop(vals):
     sql = '''INSERT INTO car_part_available_in_workshop(pname, wid) VALUES(?,?)'''
     cursor.execute(sql, vals)
 
+def add_workshop_repaired_car(vals):
+    sql = '''INSERT INTO workshop_repaired_car(wid, plate, pname, start_time, duration) VALUES(?,?,?,?,?)'''
+    cursor.execute(sql, vals)
+
 def fill_car_part_used_in_car():
     cars = get_cars()
     for car in cars:
@@ -268,7 +277,36 @@ def fill_car_part_available_in_workshop():
             provided_for.append(workshop)
             add_car_part_available_in_workshop((part[0], workshop[0]))
 
-fill_car_part_available_in_workshop()
+def fill_workshop_repaired_car():
+    end = datetime.datetime.now() + datetime.timedelta(days=40)
+    cars = get_cars()
+    workshops = get_workshops()
+    parts = get_parts()
+    for car in cars:
+        carparts = get_parts_of_car(car[0])
+        now = datetime.datetime.now() + datetime.timedelta(days=random.randint(0, 41))
+        while now < end:
+            duration = 1
+            workshop = random.choice(workshops)
+            time = [a.strip() for a in workshop[1].split('-')]
+            start = random.randint(int(time[0]), int(time[1]))
+            now.replace(hour=start-duration, minute=random.randint(0, 59))
+            no = random.randint(1, len(carparts))
+            while no > 0:
+                now += datetime.timedelta(hours=duration)
+                part = random.choice(carparts)
+                add_workshop_repaired_car((workshop[0], car[0], part[0], now, duration))
+                duration = random.randint(1, 4)
+                no-=1
+            now += datetime.timedelta(days=random.randint(0, 41))
+
+
+
+
+
+
+
+
 
 connection.commit()
 connection.close()
