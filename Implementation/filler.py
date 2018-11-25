@@ -143,7 +143,7 @@ def add_provider(vals):
     cursor.execute(sql, vals)
 
 def add_car_uses_charging_station(vals):
-    sql = '''INSERT INTO car_uses_charging_station(plate, sid, start_time) VALUES(?,?,?);'''
+    sql = '''INSERT INTO car_uses_charging_station(plate, sid, start_time, end_time) VALUES(?,?,?,?);'''
     cursor.execute(sql, vals)
 
 def add_random_stations(n):
@@ -228,8 +228,9 @@ def fill_car_uses_charging_station():
                 while car == None or car in cars:
                     car = random.choice(allcars)
                 cars.append(car)
-                add_car_uses_charging_station((car[0], station[0], now))
-            now += datetime.timedelta(hours=random.randint(1, 4))
+                end = now + datetime.timedelta(minutes=station[6])
+                add_car_uses_charging_station((car[0], station[0], now, now + datetime.timedelta(minutes=random.randint(1,station[6]))))
+            now += datetime.timedelta(hours=random.randint(1, 4), minutes=random.randint(0, 60))
 
 def get_parts_of_type(parttype):
     sql = "SELECT name FROM car_part WHERE ptype='{0}';".format(parttype)
@@ -361,7 +362,7 @@ def fill_customer_uses_car():
             uid+=1
             user_location = create_random_location()
 
-fill_customer_uses_car()
+fill_car_uses_charging_station()
 
 connection.commit()
 connection.close()
