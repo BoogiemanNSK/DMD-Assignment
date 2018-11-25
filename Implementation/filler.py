@@ -2,6 +2,7 @@ import sqlite3
 import random
 import rstr
 import datetime
+import math
 
 connection = sqlite3.connect('db.db')
 cursor = connection.cursor()
@@ -196,6 +197,11 @@ def get_cars():
     cursor.execute(sql)
     return cursor.fetchall()
 
+def get_customers():
+    sql = ''' SELECT * FROM customer; '''
+    cursor.execute(sql)
+    return cursor.fetchall()
+
 def get_parts():
     sql = "SELECT * FROM car_part;"
     cursor.execute(sql)
@@ -300,13 +306,62 @@ def fill_workshop_repaired_car():
                 no-=1
             now += datetime.timedelta(days=random.randint(0, 41))
 
+def calculate_random_distance(loc1, loc2):
+    xy1 = [int(loc.strip()) for loc in loc1.split(',')]
+    xy2 = [int(loc.strip()) for loc in loc2.split(',')]
 
+    distance = math.floor(math.sqrt((xy1[0] - xy2[0])**2 + (xy1[1] - xy2[1])**2))
+    distance += random.randint(0, distance)
+    return distance
 
+def calculate_cost(distance):
+    return math.ceil(distance/1000 * 150)
 
+def calculate_duration(distance):
+    duration = distance/1000
+    duration += random.randint(0, 2*math.ceil(duration))
+    return math.ceil(duration)
 
+car_use_types = ['order', 'trip']
 
+def add_customer_uses_car(vals):
+    sql = '''INSERT INTO customer_uses_car(
+        uid, type, customer, car, destination, distance, start_time, duration, cost
+    ) VALUES(?,?,?,?,?,?,?,?,?)'''
+    cursor.execute(sql, vals)
 
+def fill_customer_uses_car():
+    uid = 0
+    customers = get_customers()
+    cars = get_cars()
+    now = datetime.datetime.now()
+    end = now + datetime.timedelta(days=40)
+    for customer in customers:
+        now = datetime.datetime.now() + datetime.timedelta(minutes=random.randint(0, 60000))
+        username = customer[0]
+        user_location = customer[2]
+        while now < end:
+            car = random.choice(cars)
+            plate = car[0]
+            car_location = car[2]
+            order_distance = calculate_random_distance(user_location, car_location)
+            order_duration = calculate_duration(order_distance)
+            order_cost = 0
+            destination = create_random_location()
+            destination_distance = calculate_random_distance(user_location, destination)
+            destination_duration = calculate_duration(destination_distance)
+            destination_cost = calculate_cost(destination_distance)
+            add_customer_uses_car((uid, car_use_types[0], username, plate, user_location,
+            order_distance, now, order_duration, order_cost))
+            now += datetime.timedelta(minutes=order_duration)
+            uid+=1
+            add_customer_uses_car((uid, car_use_types[1], username, plate, destination,
+            destination_distance, now, destination_duration, destination_cost))
+            now += datetime.timedelta(minutes=random.randint(destination_duration, 60000))
+            uid+=1
+            user_location = create_random_location()
 
+fill_customer_uses_car()
 
 connection.commit()
 connection.close()

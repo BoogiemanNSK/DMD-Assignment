@@ -1,7 +1,7 @@
 1.
 SELECT plate
 FROM car
-WHERE plate LIKE 'AN%' AND color = 'red'
+WHERE plate LIKE 'AN%' AND color = 'Red'
 
 
 2.
