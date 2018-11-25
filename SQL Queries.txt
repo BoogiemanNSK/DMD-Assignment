@@ -5,16 +5,24 @@ WHERE plate LIKE 'AN%' AND color = 'Red'
 
 
 2.
+[for each given_hour]
+SELECT COUNT(*)
+FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.sid = car_uses_charging_station.sid
+WHERE start_time = '[given_date]%' AND
+ (SELECT DATEPART(HOUR, (SELECT DATEADD(minute, charging_time)))) > ([given_hour]) AND
+ (SELECT DATEPART(HOUR, start_time)) < ([given_hour] + 1)
 
 
 3.
 
 
+
 4.
-SELECT COUNT(usage_id) = 2
+SELECT customer_username, start_time, cost
 FROM customer_uses_car
-GROUP BY customer_username, start_time, cost
 WHERE customer_username = [given_name]
+GROUP BY start_time
+HAVING count(*) > 1
 
 
 5.
@@ -28,15 +36,64 @@ WHERE start_time = [given_date] AND type = 'trip'
 
 
 6.
+SELECT TOP 3 destination, c
+FROM (SELECT destination, COUNT (*)
+FROM customer_uses_car
+WHERE type = 'trip' AND (SELECT DATEPART(HOUR, start_time)) > 7 AND (SELECT DATEPART(HOUR, start_time)) < 10
+)
+ORDER BY c
+
+SELECT TOP 3 destination, c
+FROM (SELECT destination, COUNT (*)
+FROM customer_uses_car
+WHERE type = 'trip' AND (SELECT DATEPART(HOUR, start_time)) > 12 AND (SELECT DATEPART(HOUR, start_time)) < 14
+)
+ORDER BY c
+
+SELECT TOP 3 destination, c
+FROM (SELECT destination, COUNT (*)
+FROM customer_uses_car
+WHERE type = 'trip' AND (SELECT DATEPART(HOUR, start_time)) > 17 AND (SELECT DATEPART(HOUR, start_time)) < 19
+)
+ORDER BY c
+
+SELECT TOP 3 destination, c
+FROM (SELECT destination, COUNT (*)
+FROM customer_uses_car
+WHERE type = 'order' AND (SELECT DATEPART(HOUR, start_time)) > 7 AND (SELECT DATEPART(HOUR, start_time)) < 10
+)
+ORDER BY c
+
+SELECT TOP 3 destination, c
+FROM (SELECT destination, COUNT (*)
+FROM customer_uses_car
+WHERE type = 'order' AND (SELECT DATEPART(HOUR, start_time)) > 12 AND (SELECT DATEPART(HOUR, start_time)) < 14
+)
+ORDER BY c
+
+SELECT TOP 3 destination, c
+FROM (SELECT destination, COUNT (*)
+FROM customer_uses_car
+WHERE type = 'order' AND (SELECT DATEPART(HOUR, start_time)) > 17 AND (SELECT DATEPART(HOUR, start_time)) < 19
+)
+ORDER BY c
 
 
 7.
+SELECT TOP 10 PERCENT car
+FROM (
+	SELECT car, count(*) as c
+	FROM customer_uses_car
+	WHERE (SELECT DATEADD(month, start_time)) > (SELECT GETDATE())
+	GROUP BY car
+)
+ORDER BY c ASC
 
 
 8.
 
 
-9.
+9. 
 
 
 10.
@@ -45,7 +102,7 @@ FROM car
 WHERE
 (SELECT AVG(
 	SELECT cost
-	FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.uid = car_uses_charging_station.uid
+	FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.sid = car_uses_charging_station.sid
 
 	UNION ALL
 
