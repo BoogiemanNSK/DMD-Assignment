@@ -1,45 +1,40 @@
 1.
 SELECT plate
 FROM car
-WHERE plate LIKE 'AN%' AND color = 'red'
+WHERE plate LIKE 'AN%' AND color = 'Red'
 
 
 2.
-[for each given_hour]
-SELECT COUNT(*)
-FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.sid = car_uses_charging_station.sid
-WHERE start_time = '[given_date]%' AND
- (SELECT strftime('%h', (SELECT date(start_time, '+' || (SELECT strftime('%m', charging_time)) || ' minute')))) > ([given_hour]) AND
- (SELECT strftime('%h', start_time)) < ([given_hour] + 1)
+[for each given_hour (0-23)]
+SELECT COUNT(*) FROM car_uses_charging_station
+WHERE date(start_time) = date('[given_date]') AND CAST(strftime('%H', start_time) AS INTEGER) < [given_hour] + 1 AND
+CAST(strftime('%H', end_time) AS INTEGER) > [given_hour]
 
 
 3.
-SELECT ((
+SELECT 100 * ((
 	SELECT COUNT(*)
 	FROM customer_uses_car
-	WHERE (SELECT date(start_time, '+7 day')) > (SELECT GETDATE()) AND (SELECT strftime('%h', start_time)) > 7 AND (SELECT strftime('%h', start_time)) < 10
-) / ((
-	SELECT COUNT(*)
-	FROM car
-) * 7)) * 100
+	WHERE datetime(start_time, '+7 day') > datetime('now') AND
+	 CAST(strftime('%H', start_time) AS INTEGER) > 7 AND
+	 CAST(strftime('%H', start_time) AS INTEGER) < 10
+) * 1.0) / ((SELECT COUNT(*) FROM car) * 7.0)
 
-SELECT ((
+SELECT 100 * ((
 	SELECT COUNT(*)
 	FROM customer_uses_car
-	WHERE (SELECT date(start_time, '+7 day')) > (SELECT GETDATE()) AND (SELECT strftime('%h', start_time)) > 12 AND (SELECT strftime('%h', start_time)) < 14
-) / ((
-	SELECT COUNT(*)
-	FROM car
-) * 7)) * 100
+	WHERE datetime(start_time, '+7 day') > datetime('now') AND
+	 CAST(strftime('%H', start_time) AS INTEGER) > 12 AND
+	 CAST(strftime('%H', start_time) AS INTEGER) < 14
+) * 1.0) / ((SELECT COUNT(*) FROM car) * 7.0)
 
-SELECT ((
+SELECT 100 * ((
 	SELECT COUNT(*)
 	FROM customer_uses_car
-	WHERE (SELECT date(start_time, '+7 day')) > (SELECT GETDATE()) AND (SELECT strftime('%h', start_time)) > 17 AND (SELECT strftime('%h', start_time)) < 19
-) / ((
-	SELECT COUNT(*)
-	FROM car
-) * 7)) * 100
+	WHERE datetime(start_time, '+7 day') > datetime('now') AND
+	 CAST(strftime('%H', start_time) AS INTEGER) > 17 AND
+	 CAST(strftime('%H', start_time) AS INTEGER) < 19
+) * 1.0) / ((SELECT COUNT(*) FROM car) * 7.0)
 
 
 4.
@@ -47,75 +42,87 @@ SELECT customer_username, start_time, cost
 FROM customer_uses_car
 WHERE customer_username = [given_name]
 GROUP BY start_time
-HAVING count(*) > 1
+HAVING COUNT(*) > 1
 
 
 5.
 SELECT AVG(distance)
 FROM customer_uses_car
-WHERE start_time = [given_date] AND type = 'order'
+WHERE date(start_time) = date('[given_date]') AND type = 'order'
 
 SELECT AVG(duration)
 FROM customer_uses_car
-WHERE start_time = [given_date] AND type = 'trip'
+WHERE date(start_time) = date('[given_date]') AND type = 'trip'
 
 
 6.
 SELECT destination, c
-FROM (SELECT destination, COUNT (*)
-FROM customer_uses_car
-WHERE type = 'trip' AND (SELECT strftime('%h', start_time)) > 7 AND (SELECT strftime('%h', start_time)) < 10
+FROM (
+	SELECT destination, COUNT (*) AS c
+	FROM customer_uses_car
+	WHERE type = 'trip' AND CAST(strftime('%H', start_time) AS INTEGER) > 7 AND CAST(strftime('%H', start_time) AS INTEGER) < 10
+	GROUP BY destination
 )
 ORDER BY c
 LIMIT 3
 
 SELECT destination, c
-FROM (SELECT destination, COUNT (*)
-FROM customer_uses_car
-WHERE type = 'trip' AND (SELECT strftime('%h', start_time)) > 12 AND (SELECT strftime('%h', start_time)) < 14
+FROM (
+	SELECT destination, COUNT (*) AS c
+	FROM customer_uses_car
+	WHERE type = 'trip' AND CAST(strftime('%H', start_time) AS INTEGER) > 12 AND CAST(strftime('%H', start_time) AS INTEGER) < 14
+	GROUP BY destination
 )
 ORDER BY c
 LIMIT 3
 
 SELECT destination, c
-FROM (SELECT destination, COUNT (*)
-FROM customer_uses_car
-WHERE type = 'trip' AND (SELECT strftime('%h', start_time)) > 17 AND (SELECT strftime('%h', start_time)) < 19
+FROM (
+	SELECT destination, COUNT (*) AS c
+	FROM customer_uses_car
+	WHERE type = 'trip' AND CAST(strftime('%H', start_time) AS INTEGER) > 17 AND CAST(strftime('%H', start_time) AS INTEGER) < 19
+	GROUP BY destination
 )
 ORDER BY c
 LIMIT 3
 
 SELECT destination, c
-FROM (SELECT destination, COUNT (*)
-FROM customer_uses_car
-WHERE type = 'order' AND (SELECT strftime('%h', start_time)) > 7 AND (SELECT strftime('%h', start_time)) < 10
+FROM (
+	SELECT destination, COUNT (*) AS c
+	FROM customer_uses_car
+	WHERE type = 'order' AND CAST(strftime('%H', start_time) AS INTEGER) > 7 AND CAST(strftime('%H', start_time) AS INTEGER) < 10
+	GROUP BY destination
 )
 ORDER BY c
 LIMIT 3
 
 SELECT destination, c
-FROM (SELECT destination, COUNT (*)
-FROM customer_uses_car
-WHERE type = 'order' AND (SELECT strftime('%h', start_time)) > 12 AND (SELECT strftime('%h', start_time)) < 14
+FROM (
+	SELECT destination, COUNT (*) AS c
+	FROM customer_uses_car
+	WHERE type = 'order' AND CAST(strftime('%H', start_time) AS INTEGER) > 12 AND CAST(strftime('%H', start_time) AS INTEGER) < 14
+	GROUP BY destination
 )
 ORDER BY c
 LIMIT 3
 
 SELECT destination, c
-FROM (SELECT destination, COUNT (*)
-FROM customer_uses_car
-WHERE type = 'order' AND (SELECT strftime('%h', start_time)) > 17 AND (SELECT strftime('%h', start_time)) < 19
+FROM (
+	SELECT destination, COUNT (*) AS c
+	FROM customer_uses_car
+	WHERE type = 'order' AND CAST(strftime('%H', start_time) AS INTEGER) > 17 AND CAST(strftime('%H', start_time) AS INTEGER) < 19
+	GROUP BY destination
 )
 ORDER BY c
 LIMIT 3
 
 
 7.
-SELECT car
+SELECT car, c
 FROM (
 	SELECT car, count(*) as c
 	FROM customer_uses_car
-	WHERE (SELECT date(start_time, '+3 month')) > (SELECT GETDATE())
+	WHERE datetime(start_time, '+3 month') > datetime('now')
 	GROUP BY car
 )
 ORDER BY c ASC
@@ -123,19 +130,20 @@ LIMIT (SELECT (SELECT COUNT(*) FROM car) / 10)
 
 
 8.
-SELECT customer, COUNT(*)
+SELECT customer, COUNT(*) AS charges
 FROM (
 	SELECT customer_uses_car.car, customer_uses_car.customer, customer_uses_car.start_time
-	FROM customer_uses_car INNER JOIN car_uses_charging_station ON customer_uses_car.car = car_uses_charging_station.car
-	WHERE (SELECT strftime('%m', car_uses_charging_station.start_time)) = (SELECT strftime('%m', customer_uses_car.start_time))
+	FROM customer_uses_car INNER JOIN car_uses_charging_station ON customer_uses_car.car = car_uses_charging_station.plate
+	WHERE strftime('%m', car_uses_charging_station.start_time) = strftime('%m', customer_uses_car.start_time)
 )
 GROUP BY customer
+ORDER BY charges
 
 
 9. 
 SELECT wid, pname, c
 FROM (
-    SELECT wid, pname, (SELECT (SELECT (SELECT strftime('%y', start_time)) * 52) + (SELECT strftime('%w', start_time))) AS week, COUNT (*) AS c
+    SELECT wid, pname, (SELECT CAST (strftime('%Y', start_time) AS INTEGER) * 53 + CAST (strftime('%W', start_time) AS INTEGER)) AS week, COUNT (*) AS c
     FROM workshop_repaired_car
     GROUP BY week
     ORDER BY c DESC
@@ -144,26 +152,14 @@ FROM (
 
 
 10.
-SELECT plate
-FROM car
-WHERE
-(SELECT AVG(
-	SELECT cost
+SELECT plate, AVG(cost) as cost
+FROM (
+	SELECT car_uses_charging_station.plate, charging_station.cost
 	FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.sid = car_uses_charging_station.sid
-
 	UNION ALL
-
-	SELECT price * count AS cost
+	SELECT workshop_repaired_car.plate, car_part.price AS cost
 	FROM car_part INNER JOIN workshop_repaired_car ON car_part.name = workshop_repaired_car.pname
-)) = (SELECT MAX(
-	SELECT AVG(
-		SELECT cost
-		FROM charging_station INNER JOIN car_uses_charging_station ON charging_station.sid = car_uses_charging_station.sid
-		WHERE car_uses_charging_station.plate = car.plate
-
-		UNION ALL
-
-		SELECT price * count AS cost
-		FROM car_part INNER JOIN workshop_repaired_car ON car_part.name = workshop_repaired_car.pname
-	))
+	GROUP BY plate
 )
+ORDER BY cost DESC
+LIMIT 1
