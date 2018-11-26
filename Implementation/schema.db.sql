@@ -1,3 +1,4 @@
+BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS `workshop_repaired_car` (
 	`wid`	INTEGER NOT NULL,
 	`plate`	VARCHAR ( 10 ) NOT NULL,
@@ -5,8 +6,8 @@ CREATE TABLE IF NOT EXISTS `workshop_repaired_car` (
 	`start_time`	DATETIME NOT NULL,
 	`duration`	INTEGER NOT NULL,
 	FOREIGN KEY(`plate`) REFERENCES `car`(`plate`),
-	FOREIGN KEY(`pname`) REFERENCES `car_part`(`name`),
-	PRIMARY KEY(`wid`,`plate`,`pname`,`start_time`)
+	PRIMARY KEY(`wid`,`plate`,`pname`,`start_time`),
+	FOREIGN KEY(`pname`) REFERENCES `car_part`(`name`)
 );
 CREATE TABLE IF NOT EXISTS `workshop` (
 	`wid`	INTEGER NOT NULL,
@@ -24,8 +25,8 @@ CREATE TABLE IF NOT EXISTS `customer_uses_car` (
 	`start_time`	DATETIME NOT NULL,
 	`duration`	INTEGER NOT NULL,
 	`cost`	INTEGER,
-	FOREIGN KEY(`car`) REFERENCES `car`(`plate`),
 	PRIMARY KEY(`uid`),
+	FOREIGN KEY(`car`) REFERENCES `car`(`plate`),
 	FOREIGN KEY(`customer`) REFERENCES `customer`(`username`)
 );
 CREATE TABLE IF NOT EXISTS `customer` (
@@ -50,8 +51,9 @@ CREATE TABLE IF NOT EXISTS `car_uses_charging_station` (
 	`plate`	VARCHAR ( 20 ) NOT NULL,
 	`sid`	INTEGER NOT NULL,
 	`start_time`	DATETIME NOT NULL,
+	`end_time`	DATETIME NOT NULL,
 	FOREIGN KEY(`sid`) REFERENCES `charging_station`(`sid`),
-	PRIMARY KEY(`plate`,`sid`,`start_time`),
+	PRIMARY KEY(`plate`,`sid`,`start_time`,`end_time`),
 	FOREIGN KEY(`plate`) REFERENCES `car`(`plate`)
 );
 CREATE TABLE IF NOT EXISTS `car_parts_provider` (
@@ -71,16 +73,16 @@ CREATE TABLE IF NOT EXISTS `car_part_used_in_car` (
 CREATE TABLE IF NOT EXISTS `car_part_provided_by` (
 	`pname`	VARCHAR ( 50 ) NOT NULL,
 	`prid`	INTEGER NOT NULL,
-	FOREIGN KEY(`pname`) REFERENCES `car_part`(`name`),
 	FOREIGN KEY(`prid`) REFERENCES `car_parts_provider`(`pid`),
-	PRIMARY KEY(`prid`,`pname`)
+	PRIMARY KEY(`prid`,`pname`),
+	FOREIGN KEY(`pname`) REFERENCES `car_part`(`name`)
 );
 CREATE TABLE IF NOT EXISTS `car_part_available_in_workshop` (
 	`pname`	VARCHAR ( 50 ) NOT NULL,
 	`wid`	INTEGER NOT NULL,
 	FOREIGN KEY(`pname`) REFERENCES `car_part`(`name`),
-	FOREIGN KEY(`wid`) REFERENCES `workshop`(`wid`),
-	PRIMARY KEY(`wid`,`pname`)
+	PRIMARY KEY(`wid`,`pname`),
+	FOREIGN KEY(`wid`) REFERENCES `workshop`(`wid`)
 );
 CREATE TABLE IF NOT EXISTS `car_part` (
 	`name`	VARCHAR ( 50 ) NOT NULL,
@@ -96,3 +98,4 @@ CREATE TABLE IF NOT EXISTS `car` (
 	`color`	VARCHAR ( 10 ) NOT NULL,
 	PRIMARY KEY(`plate`)
 );
+COMMIT;
