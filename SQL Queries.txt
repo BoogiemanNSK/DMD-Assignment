@@ -3,7 +3,6 @@ SELECT plate
 FROM car
 WHERE plate LIKE 'AN%' AND color = 'Red'
 
-
 2.
 [for each given_hour (0-23)]
 SELECT COUNT(*) FROM car_uses_charging_station
